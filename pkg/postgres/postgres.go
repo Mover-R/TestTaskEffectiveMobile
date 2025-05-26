@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"os"
 	"strings"
@@ -39,12 +40,15 @@ func NewPostgres(ctx context.Context, cfg *Config) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("unable to connect to database: %w", err)
 	}
 
+	if err := resetMigrations(cfg); err != nil {
+		return nil, fmt.Errorf("failed to reset migrations: %w", err)
+	}
+
 	migrationsPath := os.Getenv("MIGRATIONS_PATH")
 	if migrationsPath == "" {
 		migrationsPath = "file://db/migrations"
 	}
 
-	fmt.Println(migrationsPath)
 	if _, err := os.Stat(strings.TrimPrefix(migrationsPath, "file://")); os.IsNotExist(err) {
 		return nil, fmt.Errorf("migrations directory does not exist: %w", err)
 	}
@@ -77,7 +81,28 @@ func NewPostgres(ctx context.Context, cfg *Config) (*pgxpool.Pool, error) {
 		} else {
 			return nil, fmt.Errorf("failed run migrations: %w", err)
 		}
+	} else if err == migrate.ErrNoChange {
+		return nil, fmt.Errorf("failed migrate: %w", err)
 	}
 
 	return conn, nil
+}
+
+func resetMigrations(cfg *Config) error {
+	db, err := sql.Open("postgres", fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		cfg.Username,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Name,
+	))
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	_, _ = db.Exec("DROP TABLE IF EXISTS schema_migrations")
+	_, _ = db.Exec("DROP SCHEMA IF EXISTS mig CASCADE")
+
+	return nil
 }

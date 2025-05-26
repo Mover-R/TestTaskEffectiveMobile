@@ -2,6 +2,7 @@ package main
 
 import (
 	"TestTaskEffectiveMobile/internal/config"
+	"TestTaskEffectiveMobile/internal/names"
 	server "TestTaskEffectiveMobile/internal/transport/rest"
 	"TestTaskEffectiveMobile/pkg/logger"
 	"TestTaskEffectiveMobile/pkg/postgres"
@@ -41,6 +42,9 @@ func main() {
 		logger.GetLoggerFromCtx(ctx).Info(ctx, "")
 	}
 	r.Run(ctx)
+
+	// Init names service
+	names.Init(ctx, r, pgDB)
 
 	<-ctx.Done()
 	pgDB.Close()

@@ -7,6 +7,7 @@ type PersonRequest struct {
 }
 
 type Person struct {
+	UserID     int          `json:"user_id"`
 	Name       string       `json:"name"`
 	Surname    string       `json:"surname"`
 	Patronymic *string      `json:"patronymic,omitempty"`

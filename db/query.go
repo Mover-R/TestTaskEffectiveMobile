@@ -17,5 +17,10 @@ const (
 						u.age,
 						u.gender
 					FROM mig.users u
-					WHERE u.user_id = &1`
+					WHERE u.user_id = $1;`
+	GetCountryQuery = `SELECT
+						c.country,
+						c.probability,
+					FROM mig.user_country c
+					WHERE c.user_id = $1;`
 )
