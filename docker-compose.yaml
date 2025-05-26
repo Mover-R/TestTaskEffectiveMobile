@@ -1,0 +1,37 @@
+version: '3.5'
+
+services:
+  backend:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    container_name: backendTestTask
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+    ports:
+        - "8081:8081"
+  postgres:
+    container_name: postgres_TestTask
+    image: postgres
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: root
+      POSTGRES_PASS: 1234
+      POSTGRES_DB: postgres
+      PGDATA: /data/postgres
+    volumes:
+       - ./db/migrations:/app/db/migrations 
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres:
