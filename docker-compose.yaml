@@ -15,7 +15,7 @@ services:
     container_name: postgres_TestTask
     image: postgres
     environment:
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: postgres #127.0.0.1
       POSTGRES_PORT: 5432
       POSTGRES_USER: root
       POSTGRES_PASS: 1234

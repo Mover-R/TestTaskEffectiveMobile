@@ -7,13 +7,13 @@ type PersonRequest struct {
 }
 
 type Person struct {
-	UserID     int          `json:"user_id"`
-	Name       string       `json:"name"`
-	Surname    string       `json:"surname"`
-	Patronymic *string      `json:"patronymic,omitempty"`
-	Age        int          `json:"age"`
-	Gender     string       `json:"gender"`
-	Country    []CountryInf `json:"country"`
+	UserID     int        `json:"user_id"`
+	Name       string     `json:"name"`
+	Surname    string     `json:"surname"`
+	Patronymic *string    `json:"patronymic,omitempty"`
+	Age        int        `json:"age"`
+	Gender     string     `json:"gender"`
+	Country    CountryInf `json:"country"`
 }
 
 type AgeResponse struct {
@@ -38,4 +38,16 @@ type CountryResponse struct {
 type CountryInf struct {
 	CountryID   string  `json:"country_id"`
 	Probability float32 `json:"probability"`
+}
+
+type Filter struct {
+	Name       *string `json:"name,omitempty"`
+	Surname    *string `json:"surname,omitempty"`
+	Patronymic *string `json:"patronymic,omitempty"`
+	AgeMin     *int    `json:"age_min,omitempty"`
+	AgeMax     *int    `json:"age_max,omitempty"`
+	Gender     *string `json:"gender,omitempty"`
+	CountryID  *string `json:"country_id,omitempty"`
+	Page       int     `json:"page"`
+	PerPage    int     `json:"per_page"`
 }

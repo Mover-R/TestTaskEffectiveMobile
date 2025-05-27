@@ -1,0 +1,222 @@
+definitions:
+  model.CountryInf:
+    properties:
+      country_id:
+        type: string
+      probability:
+        type: number
+    type: object
+  model.Filter:
+    properties:
+      age_max:
+        type: integer
+      age_min:
+        type: integer
+      country_id:
+        type: string
+      gender:
+        type: string
+      name:
+        type: string
+      page:
+        type: integer
+      patronymic:
+        type: string
+      per_page:
+        type: integer
+      surname:
+        type: string
+    type: object
+  model.Person:
+    properties:
+      age:
+        type: integer
+      country:
+        $ref: '#/definitions/model.CountryInf'
+      gender:
+        type: string
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.PersonRequest:
+    properties:
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/users/create:
+    post:
+      consumes:
+      - application/json
+      description: Create person with enriched data (age, gender, nationality)
+      parameters:
+      - description: Person data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.PersonRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create a new person
+      tags:
+      - Persons
+  /api/users/delete/{user_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete person by ID
+      parameters:
+      - description: Person ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete person
+      tags:
+      - Persons
+  /api/users/find:
+    post:
+      consumes:
+      - application/json
+      description: Get list of persons with filtering options
+      parameters:
+      - description: Filter criteria
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.Filter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Person'
+            type: array
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Find persons with filter
+      tags:
+      - Persons
+  /api/users/get/{user_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get person details by ID
+      parameters:
+      - description: Person ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Person'
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get person by ID
+      tags:
+      - Persons
+  /api/users/update/{user_id}:
+    put:
+      consumes:
+      - application/json
+      description: Update person information
+      parameters:
+      - description: Person ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Updated person data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.Person'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update person
+      tags:
+      - Persons
+swagger: "2.0"

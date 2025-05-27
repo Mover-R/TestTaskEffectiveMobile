@@ -16,4 +16,8 @@ func Init(ctx context.Context, r server.Router, pgDB *pgxpool.Pool) {
 	handl := handler.NewHandler(serv)
 
 	r.RestServe.PUT("/api/users/create", handl.CreateUser(ctx))
+	r.RestServe.GET("/api/users/get/:user_id", handl.GetUser(ctx))
+	r.RestServe.DELETE("/api/users/delete/:user_id", handl.DeleteUser(ctx))
+	r.RestServe.POST("/api/users/update/:user_id", handl.UpdateUser(ctx))
+	r.RestServe.POST("/api/users/find", handl.FindWithFilter(ctx))
 }

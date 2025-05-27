@@ -6,7 +6,11 @@ import (
 	"context"
 	"fmt"
 
+	_ "TestTaskEffectiveMobile/docs"
+
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 )
 
@@ -32,6 +36,7 @@ func NewRouter(ctx context.Context, cfg *config.Config) (Router, error) {
 		c.Next()
 	})
 	r.Use(logger.MiddleWare(ctx, logger.GetLoggerFromCtx(ctx)))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.GET("/health", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"message": "Its OK"})
 	})

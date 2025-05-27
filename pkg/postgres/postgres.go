@@ -40,9 +40,9 @@ func NewPostgres(ctx context.Context, cfg *Config) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("unable to connect to database: %w", err)
 	}
 
-	if err := resetMigrations(cfg); err != nil {
-		return nil, fmt.Errorf("failed to reset migrations: %w", err)
-	}
+	//if err := resetMigrations(cfg); err != nil {
+	//	return nil, fmt.Errorf("failed to reset migrations: %w", err)
+	//}
 
 	migrationsPath := os.Getenv("MIGRATIONS_PATH")
 	if migrationsPath == "" {
@@ -81,9 +81,9 @@ func NewPostgres(ctx context.Context, cfg *Config) (*pgxpool.Pool, error) {
 		} else {
 			return nil, fmt.Errorf("failed run migrations: %w", err)
 		}
-	} else if err == migrate.ErrNoChange {
-		return nil, fmt.Errorf("failed migrate: %w", err)
-	}
+	} // else if err == migrate.ErrNoChange {
+	//	return nil, fmt.Errorf("failed migrate: %w", err)
+	//}
 
 	return conn, nil
 }
