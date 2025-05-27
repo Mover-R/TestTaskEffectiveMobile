@@ -22,7 +22,7 @@ func NewConfig(ctx context.Context) (*Config, error) {
 
 	configPath := os.Getenv("CONFIG_PATH")
 	if configPath == "" {
-		configPath = "./config/config.yaml"
+		configPath = "./config/.env"
 	}
 
 	err := cleanenv.ReadConfig(configPath, &cfg)

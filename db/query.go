@@ -19,19 +19,19 @@ const (
 						uc.country,
 						uc.probability
 					FROM mig.users u
-					LEFT JOIN mig.user_country uc
+					LEFT JOIN mig.user_country uc ON uc.user_id = u.user_id
 					WHERE u.user_id = $1;`
-	UpdateUserQuery = `UPDATE mig.users u SET
-						u.name = $1,
-						u.surname = $2,
-						u.patronymic = $3,
-						u.age = $4,
-						u.gender = $5
-						WHERE u.user_id = $6`
-	UpdateCountryQuery = `UPDATE mig.user_country uc SET
-						uc.country = $1,
-						uc.probability = $2
-						WHERE uc.user_id = $3`
+	UpdateUserQuery = `UPDATE mig.users SET
+						name = $1,
+						surname = $2,
+						patronymic = $3,
+						age = $4,
+						gender = $5
+						WHERE user_id = $6`
+	UpdateCountryQuery = `UPDATE mig.user_country SET
+						country = $1,
+						probability = $2
+						WHERE user_id = $3`
 	FindWithFilter = `SELECT u.user_id,
 						u.name,
 						u.surname, 
@@ -41,6 +41,6 @@ const (
 						uc.country,
 						uc.probability
 					FROM mig.users u
-					LEFT JOIN mig.user_country uc
+					JOIN mig.user_country uc ON u.user_id = uc.user_id
 					WHERE 1 = 1`
 )

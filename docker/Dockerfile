@@ -15,12 +15,14 @@ WORKDIR /app
 
 COPY --from=builder /main .
 COPY ./config/config.yaml ./config/
+COPY ./config/.env ./config/
 COPY ./db/migrations/ /app/db/migrations/
 RUN chmod -R 755 /app/db/migrations
 
 RUN ls -la /app/db/migrations/
 
-ENV CONFIG_PATH=/app/config/config.yaml
+#ENV CONFIG_PATH=/app/config/config.yaml
+ENV CONFIG_PATH=/app/config/.env
 ENV MIGRATIONS_PATH="file:///app/db/migrations"
 
 EXPOSE 8081
