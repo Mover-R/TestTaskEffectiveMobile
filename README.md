@@ -26,33 +26,36 @@
   - Полу
   - Национальности
 - Пагинация (limit/offset)
-- Сортировка по любому полю
 
 ```http
-GET /api/v1/persons?age_from=20&age_to=30&gender=male&limit=10&offset=0
+POST /api/users/find
 ```
 
 #### 1.2 Удаление записи
 ```http
-DELETE /api/v1/persons/{id}
+DELETE /api/users/delete/:user_id
 ```
 
 #### 1.3 Обновление записи
 ```http
-PATCH /api/v1/persons/{id}
-Content-Type: application/json
-
+POST /api/users/update/:user_id
 {
-  "name": "UpdatedName",
-  "age": 35
+  "user_id": 9,
+  "name": "Tania",
+  "surname": "Savina",
+  "patronymic": "Valerievna",
+  "age": 49,
+  "gender": "female",
+  "country": {
+      "country_id": "RU",
+      "probability": 1
+  }
 }
 ```
 
 #### 1.4 Добавление новой записи
 ```http
-POST /api/v1/persons
-Content-Type: application/json
-
+POST /api/users/create
 {
   "name": "Dmitriy",
   "surname": "Ushakov",
@@ -71,15 +74,16 @@ Content-Type: application/json
 Пример ответа:
 ```json
 {
-  "id": "123e4567-e89b-12d3-a456-426614174000",
-  "name": "Dmitriy",
-  "surname": "Ushakov",
-  "patronymic": "Vasilevich",
-  "age": 34,
-  "gender": "male",
-  "nationality": "RU",
-  "created_at": "2023-05-26T12:00:00Z",
-  "updated_at": "2023-05-26T12:00:00Z"
+  "user_id": 9,
+  "name": "Tania",
+  "surname": "Savina",
+  "patronymic": "Valerievna",
+  "age": 49,
+  "gender": "female",
+  "country": {
+      "country_id": "RU",
+      "probability": 1
+  }
 }
 ```
 
@@ -87,16 +91,19 @@ Content-Type: application/json
 
 - Используется PostgreSQL
 - Структура БД создается через миграции
-- Основная таблица `persons` содержит:
-  - ID (UUID)
+- Основная таблица `users` содержит:
+  - ID
   - Имя, фамилия, отчество
   - Возраст
   - Пол
-  - Национальность
-  - Даты создания/обновления
+  - Даты создания
+- Таблица `user_country` содержит:
+  - ID
+  - user_id (Является внешним ключом к таблице users)
+  - Страна, к которой принадлежит пользователь
+  - Вероятность принадлежности
 
 ### 4. Логирование
-
 - **Debug-логи**: детальная информация о работе сервиса
 - **Info-логи**: основные события (запросы, обновления)
 - **Error-логи**: ошибки с stacktrace
@@ -104,14 +111,17 @@ Content-Type: application/json
 ### 5. Конфигурация
 
 Все настройки вынесены в `.env` файл:
-```
-POSTGRES_HOST=db
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=persons
-SERVER_PORT=8080
-ENVIRONMENT=development
+```env
+REST_PORT: 8081
+REST_HOST: "0.0.0.0"
+
+POSTGRES_HOST: postgres #"127.0.0.1"
+POSTGRES_PORT:  5432
+POSTGRES_USER: "root"
+POSTGRES_PASS: "1234"
+POSTGRES_DB: "postgres"
+POSTGRES_MAX_CONN: 10
+POSTGRES_MIN_CONN: 5
 ```
 
 ### 6. Документация
@@ -125,25 +135,52 @@ GET /swagger/index.html
 
 ```
 .
-├── cmd/              # Точка входа
-├── internal/
-│   ├── config/       # Конфигурация
-│   ├── domain/       # Доменные модели
-│   ├── application/  # Use cases
-│   ├── infrastructure/
-│   │   ├── api/      # Внешние API клиенты
-│   │   ├── db/       # Репозитории
-│   │   └── http/     # HTTP handlers
-│   └── interfaces/   # REST API
-├── pkg/
-│   ├── logger/       # Логирование
-│   └── postgres/     # DB подключение
-├── db/
-│   └── migrations/   # SQL миграции
-├── docs/             # Swagger docs
-├── Dockerfile
-├── docker-compose.yml
-└── go.mod
+├── cmd
+│   └── main.go
+├── config
+│   └── config.yaml
+├── db
+│   ├── migrations
+│   │   ├── 000001_init_db.down.sql
+│   │   └── 000001_init_db.up.sql
+│   └── query.go
+├── docker
+│   └── Dockerfile
+├── docker-compose.yaml
+├── docs
+│   ├── docs.go
+│   ├── swagger.json
+│   └── swagger.yaml
+├── go.mod
+├── go.sum
+├── internal
+│   ├── config
+│   │   └── config.go
+│   ├── names
+│   │   ├── handler
+│   │   │   └── handler.go
+│   │   ├── model
+│   │   │   └── model.go
+│   │   ├── names.go
+│   │   ├── repository
+│   │   │   └── repository.go
+│   │   └── service
+│   │       └── service.go
+│   └── transport
+│       └── rest
+│           ├── router.go
+│           └── server.go
+├── pkg
+│   ├── api
+│   │   └── nameData
+│   │       └── utils.go
+│   ├── logger
+│   │   └── logger.go
+│   └── postgres
+│       └── postgres.go
+└── README.md
+
+21 directories, 24 files
 ```
 
 ## Запуск проекта
@@ -153,26 +190,18 @@ GET /swagger/index.html
 docker-compose up --build
 ```
 
-2. Применить миграции:
-```bash
-docker-compose run --rm migrate up
+2. Доступ к API:
+```
+http://localhost:8081/*any
 ```
 
-3. Доступ к API:
+3. Документация:
 ```
-http://localhost:8080/api/v1/persons
-```
-
-4. Документация:
-```
-http://localhost:8080/swagger/index.html
+http://localhost:8081/swagger/index.html
 ```
 
-## Дополнительные требования
-
+## Дополнительные реализованные требования
 - Валидация входящих данных
 - Обработка ошибок
-- Тесты (unit, integration)
 - Graceful shutdown
 - Health-check endpoints
-- Rate limiting для внешних API
